@@ -1,0 +1,88 @@
+# GitHub Actions Workflow responsible for cleaning up the wiz_se_demo_template repository from
+# the template-specific files and configurations. This workflow is supposed to be triggered automatically
+# when a new template-based repository has been created.
+
+name: Template Cleanup
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+
+  # Run cleaning process only if workflow is triggered by the non-wiz_se_demo_template repository.
+  template-cleanup:
+    name: Template Cleanup
+    runs-on: ubuntu-latest
+    if: github.event.repository.name != 'wiz_se_demo_template'
+    steps:
+
+      # Check out current repository
+      - name: Fetch Sources
+        uses: actions/checkout@v2.4.0
+
+      # Cleanup project
+      - name: Cleanup template workflow
+        run: |
+          rm -rf \
+            .github/workflows/template-cleanup.yaml
+
+      # Commit modified files
+      - name: Commit files
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Template cleanup"
+
+      - name: GitHub Push
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+
+      # Commit modified files
+      - name: Create IaC-Pass file
+        run: |
+          git branch iac-pass
+          git checkout iac-pass
+          echo "testfile_iac_pass" > iac-pass.txt
+          git add .
+          git commit -m "IAC Pass Updates"
+          git push --set-upstream origin iac-pass
+          
+      # Commit modified files
+      - name: Create IaC-Fail file
+        run: |
+          git checkout main
+          git branch iac-fail
+          git checkout iac-fail
+          echo "testfile_iac_fail" > iac-fail.txt
+          git add .
+          git commit -m "IAC Fail Updates"
+          git push --set-upstream origin iac-fail
+      
+       # Commit modified files
+      - name: Create Container-Pass file
+        run: |
+          git checkout main
+          git branch container-pass
+          git checkout container-pass
+          echo "testfile_container_pass" > container-pass.txt
+          git add .
+          git commit -m "Container Pass Updates"
+          git push --set-upstream origin container-pass
+          
+       # Commit modified files
+      - name: Create Container-Fail file
+        run: |
+          git checkout main
+          git branch container-fail
+          git checkout container-fail
+          echo "testfile_container_fail" > container-fail.txt
+          git add .
+          git commit -m "Container Fail Updates"
+          git push --set-upstream origin container-fail
