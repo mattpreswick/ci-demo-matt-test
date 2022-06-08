@@ -96,11 +96,11 @@ jobs:
       run: curl -o wizcli https://wizcli.app.wiz.io/wizcli && chmod +x wizcli
 
     - name: Authenticate to Wiz
-      run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+      run: WIZ_ENV=test ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
 
     - name: Run wiz-cli IaC scan
       run: |
-        ./wizcli iac scan --path ${{ env.SCAN_PATH }} --policy "$IAC_POLICY" -p "secrets"
+        WIZ_ENV=test ./wizcli iac scan --path ${{ env.SCAN_PATH }} --policy "$IAC_POLICY" -p "secrets"
     
     - name: Apply Infrastructure as Code
       run: |
