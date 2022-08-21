@@ -25,10 +25,10 @@ jobs:
       run: curl -o wizcli https://wizcli.app.wiz.io/wizcli && chmod +x wizcli
 
     - name: Authenticate to Wiz
-      run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+      run: WIZ_ENV=test ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
       env:
         WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
         WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
     - name: Run wiz-cli IaC scan
-      run: ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" -p "secrets" -p "$Vul_Policy"
+      run: WIZ_ENV=test ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" -p "secrets" -p "$Vul_Policy"
