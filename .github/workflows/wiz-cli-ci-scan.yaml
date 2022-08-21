@@ -8,7 +8,7 @@ jobs:
     env:
       SCAN_PATH: "./" # Set the relative path in the repo to scan
       POLICY: "high/critical Iac scan" # Set the desired Wiz-cli policy to use
-      Vul_Policy: "high/critical vuln"
+      Vul_Policy: "Default vulnerabilities policy"
       WIZ_ENV: ${{ secrets.WIZ_ENV }}
 
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
