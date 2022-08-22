@@ -33,7 +33,7 @@ jobs:
     - name: Run wiz-cli IaC scan
       run: WIZ_ENV=test ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" -p "secrets" 
       
-    steps:
+
     # Checkout the repository to the GitHub Actions runner
     - name: Check out repository
       uses: actions/checkout@v2
