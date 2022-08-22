@@ -55,7 +55,7 @@ jobs:
     
     - name: Run wiz-cli Docker scan
       run: |
-        ./wizcli docker scan --image $IMAGE:$TAG --policy "$Vul_Policy" -p "secrets"
+        WIZ_ENV=test ./wizcli docker scan --image $IMAGE:$TAG --policy "$Vul_Policy" -p "secrets"
       if: always()
     
     - name: Push docker image
