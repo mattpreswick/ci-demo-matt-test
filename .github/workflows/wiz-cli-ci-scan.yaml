@@ -31,4 +31,33 @@ jobs:
         WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
 
     - name: Run wiz-cli IaC scan
-      run: WIZ_ENV=test ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" -p "secrets" --policy "$Vul_Policy"
+      run: WIZ_ENV=test ./wizcli iac scan --path $SCAN_PATH --policy "$POLICY" -p "secrets" 
+      
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    - name: Download Wiz-cli
+      run: curl -o wizcli https://wizcli.app.wiz.io/wizcli && chmod +x wizcli
+
+    - name: Authenticate to Wiz
+      run: WIZ_ENV=test ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+
+    - name: Run wiz-cli IaC scan
+      run: |
+        WIZ_ENV=test ./wizcli iac scan --path $SCAN_PATH --policy "$IAC_POLICY" -p "secrets"
+        
+    - name: Build the Docker image
+      run: |
+        docker build $SCAN_PATH -t $IMAGE:$TAG
+      if: always()
+    
+    - name: Run wiz-cli Docker scan
+      run: |
+        ./wizcli docker scan --image $IMAGE:$TAG --policy "$Vul_Policy" -p "secrets"
+      if: always()
+    
+    - name: Push docker image
+      run: |
+        echo "Pushing image here
