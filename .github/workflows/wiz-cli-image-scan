@@ -1,0 +1,39 @@
+name: 'wiz-cli'
+on: [pull_request]
+
+jobs:
+  wiz-cli-image-scan:
+    name: 'Wiz-cli Image Scan'
+    runs-on: ubuntu-latest
+    env:
+      SCAN_PATH: "./" # Set the relative path in the repo to build the image from
+      TAG: "docker-tag" # Set the tag to use for the image
+      POLICY: "Default vulnerabilities policy" # Set the desired Wiz-cli policy to use
+      WIZ_ENV: ${{ secrets.WIZ_ENV }}
+
+    # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+    # Checkout the repository to the GitHub Actions runner
+    - name: Check out repository
+      uses: actions/checkout@v2
+
+    # It's possible to skip this step if this job is sceduled after an image-build job.
+    # If that's the case, also set "Run wiz-cli docker image scan" step accordingly
+    - name: Build the Docker image
+      run: cd $SCAN_PATH && docker build . --tag $TAG # Configure to fit the params you use to build your image
+
+    - name: Download Wiz-cli
+      run: curl -o wizcli https://wizcli.app.wiz.io/wizcli && chmod +x wizcli
+
+    - name: Authenticate to Wiz
+      run: WIZ_ENV=test ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+      env:
+        WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+        WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+
+    - name: Run wiz-cli docker image scan
+      run: WIZ_ENV=test ./wizcli docker scan --image $TAG --policy "$POLICY"
